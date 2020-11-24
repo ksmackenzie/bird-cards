@@ -43,11 +43,31 @@ footer {
   margin: auto;
 }
 
+.card-container form {
+  grid-column: 1 / -1;
+}
+
+.card-container form > *:not(:first-child) {
+  margin-left: 5px;
+}
+
+input[type="submit"] {
+  color: var(--galah-white);
+  background-color: var(--galah-pink);
+  border: none;
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+
 .card {
   padding: 15px;
   border-radius: 5px;
   -webkit-box-shadow: var(--box-shadow);
   box-shadow: var(--box-shadow);
+}
+
+.card > .card {
+  cursor: pointer;
 }
 
 .card > :first-child {margin-top: 0;}
