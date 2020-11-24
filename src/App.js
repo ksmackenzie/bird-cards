@@ -3,41 +3,58 @@ import './App.css'
 import Card from './Card'
 import { useState, useEffect } from 'react'
 
-const sampleCardData = [
-  {
-    heading: 'Super-spangled Drongo',
-    description: "Much like the vaunted Spangled Drongo, only even more super-duper cool, y'know?",
-  },
-  {
-    heading: 'New Zealand Moa',
-    description:
-      'Much like the vaunted emu, only like twice as big and from New Zealand. The Moa were hunted to extinciton hundreds of years ago by the Maori.',
-  },
-]
-
 function App() {
-  const [cards, setcards] = useState(sampleCardData)
-  const [newCard, setnewCard] = useState()
+  const getWikiContent = (topic) => {
+    fetch(
+      `https://en.wikipedia.org/w/api.php?origin=*&format=json&action=query&prop=extracts|pageimages&piprop=original&exintro&explaintext&redirects=1&titles=${topic}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        const card = Object.values(res.query.pages)[0]
+        console.log(res);
+        setnewCard({
+          heading: card.title,
+          description: card.extract,
+          image: card.original.source
+        })
+      })
+      .catch((e) => {
+        alert(`Oh no! Couldn't find anything on ${topic}`)
+      })
+  }
 
-  function addNewCard() {
-    setnewCard({
-      heading: 'Dragon',
-      description: 'Not actually even a bird, but a dragon is pretty cool and it flies, so...',
-    })
+  const [cards, setcards] = useState([])
+  const [newCard, setnewCard] = useState()
+  const [query, setquery] = useState('')
+
+  async function addNewCard(topic) {
+    getWikiContent(topic)
   }
 
   useEffect(() => {
     newCard && setcards((cards) => [newCard, ...cards])
   }, [newCard])
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    addNewCard(query)
+  }
+  
+
   return (
     <div className='App'>
       <nav>Bird Cards</nav>
       <main>
-        <button onClick={() => addNewCard()}>Add Dragon</button>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Add new bird:
+            <input type='text' value={query} onChange={(e) => setquery(e.target.value)} />
+          </label>
+          <input type='submit' value='Submit' />
+        </form>
         <div className='card card-container'>
           {cards.map((data, idx) => (
-            <Card heading={data.heading} description={data.description} key={idx} />
+            <Card heading={data.heading} description={data.description} image={data.image} key={idx} />
           ))}
         </div>
       </main>
