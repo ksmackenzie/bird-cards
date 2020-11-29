@@ -1,0 +1,165 @@
+/* debugging */
+.debug-layout, .debug-layout * {
+  border: 1px solid red;
+}
+
+/* height and width fills */
+.v-fill-screen {
+  height: 100vh;
+}
+
+.w-fill-screen {
+  width: 100vh;
+}
+
+.ht-100pc {
+  height: 100%;
+}
+
+.ht-max-100pc {
+  max-height: 100%;
+}
+
+.wd-100pc {
+  width: 100%;
+}
+
+.wd-max-100pc {
+  max-width: 100%;
+}
+
+/* alignment */
+.h-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* flexbox stuff */
+.flex {
+  display: flex;
+}
+
+.flex-item-right {
+  margin-left: auto;
+}
+
+/* grid stuff */
+.grid-burger {
+  /* top and bottom 'natural' height, middle fills remaining space,
+  ideal for top-nav / main / footer layouts */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.grid-bookends {
+  /* 
+  left and right 'natural' width, middle fills remaining space,
+  ideal for sidebar / main / sidebar layouts 
+  */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+}
+
+.fill-grid-row {
+  grid-column: 1 / -1;
+}
+
+/* positioning */
+.pos-relative {
+  position: relative;
+}
+
+.pos-absolute {
+  position: absolute;
+}
+
+.top-0 {
+  top: 0;
+}
+.left-0 {
+  left: 0;
+}
+.right-0 {
+  right: 0;
+}
+.btm-0 {
+  bottom: 0;
+}
+
+/* EXPERIMENTAL SHIT... */
+.grid-magic {
+  /* set the below vars as needed. They MUST be static values (e.g., no percentages) */
+  
+  /* GAP AND PADDING
+   - use these for space between grid items, and padding around border of the grid
+   - DO NOT use justfiy-content, align-items etc for these purposes, nor use align-self etc on grid items
+   */
+  --grid-padding: 10px;
+  --grid-gap: 10px;
+
+
+  /* 
+  --- IMPORTANT OBSERVATION!!! ---
+  - to ensure robust layout on narrow width views (ie mobile phones):
+    - the result of --max-grid-width divided by the --max-cols, when added to the total padding/margin outside the grid,  MUST be less than or equal to 320px!
+    - that is:
+      ((max-grid-width / max-cols) + total-horizontal-outside) > 320px
+  - so, to calculate max-grid-width:
+      max-grid-width <= (320px - total-horizontal-outside) * max-cols
+  */
+  --max-grid-width: 1080px;
+  --max-cols: 6;
+  --total-horizontal-outer: 50px;
+  /* --max-grid-width: 960px; */
+  /* --max-grid-width: 600px; */
+
+  --max-cols-minus-1: calc(var(--max-cols) - 1);
+
+  /* this value is the padding OUTSIDE the grid */
+  --outer-padding: 50px;
+
+  /* TODO: this goes slightly wrong when there are fewer columns than the max (ie --max-cols) */
+  /* can I fix this with calculation based on 100vw? */
+  /* --total-gap-space: calc(var(--max-cols-minus-1) * var(--grid-gap)); */
+  --total-gap-space: calc(var(--max-cols-minus-1) * var(--grid-gap));
+
+  --total-h-padding: calc(var(--grid-padding) * 2);
+  --empty-horizontal-space: calc(calc(var(--grid-padding) * 2) + var(--total-gap-space));
+  /* --responsive-grid-width: calc(100vw - var(--total-h-padding)); */
+  --responsive-grid-width: calc(100vw - (var(--empty-horizontal-space) + var(--outer-padding)));
+
+  /* width: min(var(--responsive-grid-width), var(--max-grid-width)); */
+  --grid-width: min(calc(100% - var(--outer-padding)), var(--max-grid-width));
+  width: var(--grid-width);
+
+  --min-col-width: calc(
+    (var(--max-grid-width) / var(--max-cols)) - (var(--max-cols-minus-1) * (var(--grid-gap)) + var(--total-h-padding))
+  );
+
+  /* margin-top: 1rem; */
+  display: grid;
+  gap: var(--grid-gap);
+  /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+  grid-template-columns: repeat(auto-fit, minmax(var(--min-col-width), 1fr));
+  /* margin-left: auto; */
+  margin-left: min(0, max(auto, 15px));
+  margin-right: min(0, max(auto, 15px));
+  /* margin: min(0, max(auto, 15px)); */
+  padding: var(--grid-padding)
+}
+
+.grid-magic-take-2 {
+  display: grid;
+
+  --padding: 20px;
+  padding: var(--padding);
+
+  --gap: 10px;
+  gap: var(--gap);
+
+  --max-cols: 3;
+  --max-width: 960;
+
+
+}
+
