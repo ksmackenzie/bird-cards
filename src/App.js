@@ -6,10 +6,17 @@ import { useState, useEffect } from 'react'
 const baseUrl = `https://en.wikipedia.org/w/api.php?origin=*&format=json&action=query&prop=extracts|pageimages&piprop=thumbnail&pithumbsize=500&exintro&redirects=1&titles=`
 
 function App() {
+  function showErrorModal(message) {
+    const app = document.querySelector('.App')
+    const modal = `<div class='modal-bg'><div class='modal'><h3>Failed :(</h3><p>${message}</p></div></div>`
+    app.insertAdjacentHTML('afterbegin', modal)
+  }
+
   function clearModal() {
     const modal = document.querySelector('.modal-bg')
     modal?.parentNode && modal.parentNode.removeChild(modal)
   }
+
   const getWikiContent = async (topic) => {
     try {
       const response = await fetch(`${baseUrl}${topic}`)
@@ -19,27 +26,24 @@ function App() {
       if (pageKey === '-1') throw new Error(`Oh no! Couldn't find anything on ${topic}`)
 
       const page = Object.values(result.query.pages)[0]
-      console.log(page)
-      const [heading, description, image, id] = [
-        page.title,
-        page.extract,
-        page.thumbnail?.source || null,
-        page.pageid,
-      ]
 
       const existingIds = cards.map((c) => c.id)
       if (!existingIds.includes(page.pageid)) {
-        setnewCard({ heading, description, image, id })
+        setnewCard({
+          heading: page.title,
+          description: page.extract,
+          image: page.thumbnail?.source || null,
+          id: page.pageid,
+        })
         setquery('')
       }
     } catch (error) {
-      const app = document.querySelector('.App')
-      const modal = `<div class='modal-bg'><div class='modal'><h3>Failed :(</h3><p>${error.message}</p></div></div>`
-      app.insertAdjacentHTML('afterbegin', modal)
+      showErrorModal(error.message)
     }
   }
 
-  const [cards, setcards] = useState([])
+  const storedCards = JSON.parse(localStorage.getItem('bird-cards'))
+  const [cards, setcards] = useState(storedCards || [])
   const [newCard, setnewCard] = useState()
   const [query, setquery] = useState('')
 
@@ -48,14 +52,18 @@ function App() {
   }
 
   useEffect(() => {
+    localStorage.setItem('bird-cards', JSON.stringify(cards))
+  }, [cards])
+
+  useEffect(() => {
     newCard && setcards((cards) => [newCard, ...cards])
     return () => {
       setnewCard(null)
     }
   }, [newCard])
 
-  // MODAL
   useEffect(() => {
+    // MODAL HANDLING
     const clickListener = document.addEventListener('click', (e) => {
       e.target.className === 'modal-bg' && clearModal()
     })
@@ -68,6 +76,7 @@ function App() {
     return () => {
       document.removeEventListener('click', clickListener)
       document.removeEventListener('keydown', clearModalKeyListener)
+      localStorage.removeItem('bird-cards')
     }
   }, [])
 
@@ -77,7 +86,6 @@ function App() {
   }
 
   const deleteCard = (id) => {
-    console.log(id)
     setcards(cards.filter((card) => card.id !== id))
   }
 

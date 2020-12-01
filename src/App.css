@@ -51,10 +51,11 @@ form button {
   color: var(--galah-white);
   font-weight: 500;
   text-transform: uppercase;
+  line-height: 20px;
   background-color: var(--galah-pink);
   border: none;
-  border-radius: 3px;
-  padding: 3px 8px;
+  border-radius: 5px;
+  padding: 4px 12px;
 }
 
 .cards-grid {
